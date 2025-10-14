@@ -1,0 +1,3 @@
+{
+  "python.defaultInterpreterPath": "/opt/miniforge3/envs/jax/bin/python"
+}

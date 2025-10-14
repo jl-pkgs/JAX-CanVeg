@@ -249,7 +249,7 @@ def perform_optimization_batch(
         except Exception as e:
             # If there is error in the update, return the current model
             # and report the error
-            logging.error('Fail to update the model with the following error \m: ' + str(e))
+            logging.error('Fail to update the model with the following error \n: ' + str(e))
             return get_trained_result(model, loss_set)
             # if batched_met_test is not None and batched_y_test is not None:
             #     loss_set_train = [l_value[0] for l_value in loss_set]

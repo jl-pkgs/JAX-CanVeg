@@ -917,16 +917,11 @@ double RAN0(long *idum)
 
 	// definitions for random number generator, Numerical Recipes
 
-
-
 	// random number generator from Numerical Recipes in C
 	// Press et al
 
 	// flat distribution between 0 and 1
 	// the period of repeat is ~2^31
-
-
-
 
 	long k;
 	double ans;

@@ -347,7 +347,11 @@ def get_met_forcings(f_forcing: str, lai: Optional[Float_0D] = None) -> Tuple[Me
 def get_obs(f_obs: str) -> Obs:
     # Load the observations forcing text file
     obs = pd.read_csv(f_obs)
-    obs.interpolate(method="linear", limit_direction="both", inplace=True)
+
+    numeric_cols = obs.select_dtypes(include=['number']).columns
+    obs[numeric_cols] = obs[numeric_cols].interpolate(method="linear", limit_direction="both")
+    # obs.interpolate(method="linear", limit_direction="both", inplace=True)
+
     ntime = obs.shape[0]
     nan = jnp.nan * jnp.ones(ntime)
     # nan = jnp.ones(ntime)
