@@ -3,3 +3,6 @@
 
 backup
 *.log
+tests/*/*.txt
+tests/*/*.csv
+tests/*/*.eqx
