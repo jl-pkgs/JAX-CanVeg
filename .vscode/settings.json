@@ -1,3 +1,14 @@
 {
-  "python.defaultInterpreterPath": "/opt/miniforge3/envs/jax/bin/python"
+  "python.defaultInterpreterPath": "/opt/miniforge3/envs/jax/bin/python",
+  "jupyter.notebookFileRoot": "${workspaceFolder}", // !important
+  // "jupyter.notebookFileRoot": "${fileDirname}",
+  "python.envFile": "${workspaceFolder}/.vscode/.env",
+
+  /** notebook排版*/
+  "notebook.compactView": true,
+  "notebook.insertToolbarLocation": "notebookToolbar",
+  // "notebook.showCellStatusBar": "hidden",
+  "notebook.cellToolbarLocation": {
+    "jupyter-notebook": "hidden",
+  },
 }

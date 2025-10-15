@@ -1,7 +1,11 @@
 """Train the models."""
 
+import os
 from os import path
 from pathlib import Path
+
+# Force JAX to use CPU before importing jax
+# os.environ["JAX_PLATFORMS"] = "cpu"
 
 import jax
 from jax_canveg import train_model
@@ -21,5 +25,5 @@ def getwd(): return Path(path.abspath(path.dirname(__file__)))
 f_Hybrid = getwd() / "Hybrid-1L-0.0/configs.json" # US-Whs
 f_PB = getwd() / "PB-1L-0.0/configs.json" # US-Whs
 
-train_model(f_Hybrid, save_log_local=True)  # pyright: ignore
-train_model(f_PB, save_log_local=True)  # pyright: ignore
+# train_model(f_Hybrid, save_log_local=True)
+train_model(f_PB, save_log_local=True)
