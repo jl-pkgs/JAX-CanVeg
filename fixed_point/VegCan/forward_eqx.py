@@ -8,7 +8,7 @@ from case import Para, fixed_point
 
 
 @eqx.filter_custom_jvp
-def implicit_func_fixed_point(
+def fixed_point_forward(
     states_guess: List,
     para: Para,
     args: List,
@@ -23,8 +23,8 @@ def implicit_func_fixed_point(
     return substates_solution
 
 
-@implicit_func_fixed_point.defjvp
-def implicit_func_fixed_point_jvp(
+@fixed_point_forward.defjvp
+def fixed_point_forward_jvp(
     primals,
     tangents,
     *,

@@ -7,75 +7,7 @@ from typing import List
 import lineax as lx
 from case import Para, fixed_point, simple_iter_func, get_substates_func, update_substates_func, simple_iter_func
 
-
-
-@eqx.filter_custom_jvp
-def implicit_func_jvp(
-    states_guess: List,
-    para: Para,
-    args: List,
-    *,
-    iter_func,
-    update_substates_func,
-    get_substates_func,
-    niter: int,
-):
-    states_solution = fixed_point(iter_func, states_guess, para, niter, *args)
-    substates_solution = get_substates_func(states_solution)
-    return substates_solution
-
-
-@implicit_func_jvp.def_jvp
-def implicit_func_jvp_rule(
-    primals,
-    tangents,
-    *,
-    iter_func,
-    update_substates_func,
-    get_substates_func,
-    niter,
-):
-    states_guess, para, args = primals[0], primals[1], primals[2]
-    t_states_guess, t_para, t_args = tangents[0], tangents[1], tangents[2]
-
-    # 前向计算
-    states_final = fixed_point(iter_func, states_guess, para, niter, *args)
-    substates_final = get_substates_func(states_final)
-
-    # 如果 para 没有被微分，直接返回零切向量
-    if t_para is None:
-        tangent_out = jnp.zeros_like(substates_final)
-        return substates_final, tangent_out
-
-    # 定义关于 para 的迭代函数
-    def each_iteration_para(para_):
-        states2 = iter_func(states_final, para_, *args)
-        substates2 = get_substates_func(states2)
-        return substates2
-
-    # 定义关于 substates 的迭代函数
-    def each_iteration_state(substates):
-        states1 = update_substates_func(states_final, substates)
-        states2 = iter_func(states1, para, *args)
-        substates2 = get_substates_func(states2)
-        return substates2
-
-    # 计算 u = ∂F/∂para · t_para
-    _, u = jvp(each_iteration_para, (para,), (t_para,))
-    
-    # 计算 Jacobian J = ∂F/∂substates
-    _J = jacfwd(each_iteration_state, argnums=0)(substates_final)
-    J = lx.PyTreeLinearOperator(_J, jax.eval_shape(lambda: u))
-    I = lx.IdentityLinearOperator(J.in_structure())
-    
-    # 求解 (I - J) @ tangent_out = u
-    A = I - J
-    tangent_out = lx.linear_solve(
-        A, u, solver=lx.AutoLinearSolver(well_posed=False)
-    ).value
-    
-    return substates_final, tangent_out
-
+from forward_eqx import fixed_point_forward
 
 
 @eqx.filter_custom_vjp
@@ -222,7 +154,7 @@ def example_usage():
     print("测试 1: JVP 版本")
     print("-" * 70)
     
-    result_jvp = implicit_func_jvp(
+    result_jvp = fixed_point_forward(
         states_guess, para, args,
         iter_func=simple_iter_func,
         update_substates_func=update_substates_func,

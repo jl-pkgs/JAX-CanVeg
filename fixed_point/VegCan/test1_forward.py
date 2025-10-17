@@ -2,7 +2,7 @@ import jax
 import jax.numpy as jnp
 from jax import grad, jvp
 from typing import List
-from forward_eqx import Para, fixed_point, implicit_func_fixed_point
+from forward_eqx import Para, fixed_point, fixed_point_forward
 from case import *
 
 
@@ -30,7 +30,7 @@ def test_forward():
     
     states_guess = [jnp.zeros((batch_size, dim))]
     
-    result = implicit_func_fixed_point(
+    result = fixed_point_forward(
         states_guess,
         para,
         [],
@@ -71,7 +71,7 @@ def test_jvp():
     
     def f(bias_param):
         para_temp = Para(weight=para.weight, bias=bias_param)
-        return implicit_func_fixed_point(
+        return fixed_point_forward(
             states_guess,
             para_temp,
             [],
@@ -114,7 +114,7 @@ def test_grad():
     
     def loss_fn(bias_param):
         para_temp = Para(weight=para.weight, bias=bias_param)
-        result = implicit_func_fixed_point(
+        result = fixed_point_forward(
             states_guess,
             para_temp,
             [],
