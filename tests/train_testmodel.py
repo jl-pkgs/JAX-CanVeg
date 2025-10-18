@@ -22,10 +22,10 @@ tune_jax_naninfs_for_debug(False)
 
 def getwd(): return Path(path.abspath(path.dirname(__file__)))
 
-logging.basicConfig(level=logging.INFO)
 
 f_Hybrid = getwd() / "Hybrid-1L-0.0/configs.json" # US-Whs
 f_PB = getwd() / "PB-1L-0.0/configs.json" # US-Whs
 
 # train_model(f_Hybrid, save_log_local=True)
-train_model(f_PB, save_log_local=False)
+# logging.basicConfig(level=logging.INFO)
+train_model(f_PB, save_log_local=True)

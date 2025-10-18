@@ -78,6 +78,7 @@ if __name__ == "__main__":
         # TODO: Need a better way to check nan occurring in the gradients
         grads = jtu.tree_map(lambda x: jnp.nanmean(x), results[1])
 
+
         opt_state = optim.init(eqx.filter(_model, eqx.is_array))
         updates, opt_state = optim.update(grads, opt_state)  # 计算更新
         model = eqx.apply_updates(_model, updates)
@@ -88,17 +89,16 @@ if __name__ == "__main__":
     print(met, y)
     print("Running one batch ...")
 
-    model_args = output_funcs
-    model2 = eqx.combine(diff_model, static_model)
-
-    pred_y = model2(met, *model_args)
-    _loss = loss_func(y, pred_y) 
-    jax.debug.print("[one batch]: loss_value (direct compute): {x}", x=_loss)
+    # model_args = output_funcs
+    # model2 = eqx.combine(diff_model, static_model)
+    # pred_y = model2(met, *model_args)
+    # _loss = loss_func(y, pred_y) 
+    # jax.debug.print("[one batch]: loss_value (direct compute): {x}", x=_loss)
 
     # # 都是同样的过程，为何调用 loss_func_optim 会失败？
-    # run_batch(diff_model, static_model, y, met)
+    run_batch(diff_model, static_model, y, met)
 
     ## 2. 数据batch
-    print("Running all batches ...")
-    run_batches()
-    print("Model updated.")
+    # print("Running all batches ...")
+    # run_batches()
+    # print("Model updated.")

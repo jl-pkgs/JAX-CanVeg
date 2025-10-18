@@ -66,6 +66,7 @@ if __name__ == "__main__":
     _loss = loss_func(y, pred_y) 
     jax.debug.print("[one batch]: loss_value (direct compute): {x}", x=_loss)
     
+
     # # 都是同样的过程，为何调用 loss_func_optim 会失败？
     # run_batch(diff_model, static_model, y, met)
 
