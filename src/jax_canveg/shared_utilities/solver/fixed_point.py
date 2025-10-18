@@ -79,7 +79,8 @@ def implicit_func_fixed_point_jvp(
     # states_guess, para, niter, args = primals[0], primals[1], primals[2], primals[3:]
     # states_guess, para, args = primals[0], primals[1], primals[2:]
     states_guess, para, args = primals[0], primals[1], primals[2]
-    tan_para = tangents[1]
+    v = tangents[1] # 这个变量为何理解, tan_para
+
     # jax.debug.print("debug para: {x}", x=para)
     # jax.debug.print("debug tan_para: {x}", x=tan_para)
 
@@ -98,15 +99,27 @@ def implicit_func_fixed_point_jvp(
         return substates2
 
     # Compute the Jacobian and the vectors
-    _, u = jvp(each_iteration_para, (para,), (tan_para,), has_aux=False)
-    Jacobian_JAX = jacfwd(each_iteration_state, argnums=0, has_aux=False)
-    J = Jacobian_JAX(substates_final)
-    J = lx.PyTreeLinearOperator(J, jax.eval_shape(lambda: u))
-    I = lx.IdentityLinearOperator(J.in_structure())  # noqa: E741
-    A = I - J
-    tangent_out = lx.linear_solve(
-        A, u, solver=lx.AutoLinearSolver(well_posed=False)
-    ).value
+    # a -> w -> para, x -> state
+    _, b = jvp(each_iteration_para, (para,), (v,))  # pdv(f, a) v
+    
+    def matvec(v_in):
+        # 计算 J @ v_in，使用JVP而不是显式Jacobian
+        _, Jv = jvp(each_iteration_state, (substates_final,), (v_in,))
+        return Jv
+
+    # 这里提前定义了一个矩阵乘法运算，about 2times faster
+    J_op = lx.FunctionLinearOperator(matvec, jax.eval_shape(lambda: substates_final)) 
+
+    I = lx.IdentityLinearOperator(J_op.in_structure())
+    A = I - J_op # (I - J)·v = v - J·v
+    
+    # _J = jacfwd(each_iteration_state, argnums=0)(substates_final)  # pdv(f, x)
+    # J = lx.PyTreeLinearOperator(_J, jax.eval_shape(lambda: b)) # why ? 
+    # I = lx.IdentityLinearOperator(J.in_structure())  # 
+    # A = I - J
+    
+    # [ I - pdv(f, x) ] [pdv(x, w) v] = pdv(f, a) v,   (I - J) [pdv(x, w) v] = b
+    tangent_out = lx.linear_solve(A, b, solver=lx.AutoLinearSolver(well_posed=False)).value
     # tangent_out = lx.linear_solve(A, u, solver=lx.SVD()).value
     return substates_final, tangent_out
 
