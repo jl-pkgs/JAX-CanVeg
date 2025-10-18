@@ -12,8 +12,14 @@
       // "python": "${command:python.interpreterPath}",
       "python": "/opt/miniforge3/envs/jax/bin/python",
       // "python": "/usr/bin/env /opt/miniforge3/envs/jax/bin/python",
-      "program": "${workspaceFolder}/tests/train_testmodel.py",
-      // "program": "${file}",
+      // "program": "${workspaceFolder}/tests/train_testmodel.py",
+      // "program": "${workspaceFolder}/tests/debug.py",
+      // "program": "${workspaceFolder}/tests/model_runsteps.py",
+      "cwd": "${workspaceFolder}",
+      "program": "${file}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/src:${workspaceFolder}" // make jax_canveg importable
+      },
       "console": "integratedTerminal"
     }
   ]
