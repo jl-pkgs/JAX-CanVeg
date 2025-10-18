@@ -7,7 +7,7 @@ from typing import List
 import lineax as lx
 from case import Para, fixed_point, simple_iter_func, get_substates_func, update_substates_func, simple_iter_func
 
-from forward_eqx import fixed_point_forward
+from fixed_point.VegCan.fwd_eqx import fixed_point_forward
 
 
 @eqx.filter_custom_vjp

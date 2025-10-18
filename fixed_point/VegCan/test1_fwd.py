@@ -2,7 +2,8 @@ import jax
 import jax.numpy as jnp
 from jax import grad, jvp
 from typing import List
-from forward_eqx import Para, fixed_point, fixed_point_forward
+
+from fwd_eqx import Para, fixed_point, fixed_point_forward
 from case import *
 
 
