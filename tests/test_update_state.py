@@ -13,7 +13,6 @@ from jax_canveg.subjects.initialization_update import (
 )
 from jax_canveg.shared_utilities.optim.optim import loss_func_optim
 from jax_canveg.shared_utilities.utils import dot
-from jax_canveg.subjects import Met
 
 from jax_canveg.physics.energy_fluxes import rad_tran_canopy, sky_ir
 from jax_canveg.physics.energy_fluxes import diffuse_direct_radiation
@@ -85,80 +84,9 @@ def test_modules():
     rnet, lai, sun_ang, leaf_ang, initials = canveg_initialize_states(
         para, met, **kwargs
     )
-
+    
     ## =========================================================================
-
-    jtot = self.n_can_layers
-    ntime = met.zL.size
-
-    prof = initialize_profile(met, para)
-
-    lat_deg = self.lat_deg
-    long_deg = self.long_deg
-    time_zone = self.time_zone
-
-    dt_soil = self.dt_soil
-    soil_mtime = self.soil_mtime
-    n_soil_layers = self.n_soil_layers
-    leafangle = self.leafangle
-
-    (soil, quantum, nir, ir, qin, rnet, sun, shade, veg, lai, can) = (
-        initialize_model_states(
-            met, para, ntime, jtot, dt_soil, soil_mtime, n_soil_layers
-        )
-    )
-
-    sun_ang = angle(lat_deg, long_deg, time_zone, met.day, met.hhour)
-
-    leaf_ang = leaf_angle(sun_ang, para, leafangle, lai)
-
-    #                     Compute direct and diffuse radiations                    #
-    ratrad, par_beam, par_diffuse, nir_beam, nir_diffuse = diffuse_direct_radiation(
-        sun_ang.sin_beta, met.rglobal, met.parin, met.P_kPa
-    )
-
-    quantum = eqx.tree_at(
-        lambda t: (t.inbeam, t.indiffuse), quantum, (par_beam, par_diffuse)
-    )
-    nir = eqx.tree_at(lambda t: (t.inbeam, t.indiffuse), nir, (nir_beam, nir_diffuse))
-
-    # ---------------------------------------------------------------------------- #
-    #                     Initialize IR fluxes with air temperature                #
-    ir_in = sky_ir(met.T_air_K, ratrad, para.sigma)
-    # ir_in = sky_ir_v2(met, ratrad, para.sigma)
-    ir_dn = dot(ir_in, ir.ir_dn)
-    ir_up = dot(ir_in, ir.ir_up)
-    ir = eqx.tree_at(lambda t: (t.ir_in, t.ir_dn, t.ir_up), ir, (ir_in, ir_dn, ir_up))
-
-    # PAR
-    quantum = rad_tran_canopy(
-        sun_ang,
-        leaf_ang,
-        quantum,
-        para,
-        lai,
-        para.par_reflect,
-        para.par_trans,
-        para.par_soil_refl,
-        niter=niter,
-    )
-    # NIR
-    nir = rad_tran_canopy(
-        sun_ang,
-        leaf_ang,
-        nir,
-        para,
-        lai,
-        para.nir_reflect,
-        para.nir_trans,
-        para.nir_soil_refl,
-        niter=niter,
-    )
-
-    states_initial = [met, prof, quantum, nir, ir, qin, sun, shade, soil, veg, can]
-
-    ## =========================================================================
-    states_guess = states_initial
+    states_guess = initials
 
     args = [
         dij,
@@ -171,7 +99,6 @@ def test_modules():
         leafrh_func,
         soilresp_func,
     ]
-    ## 后续测试canveg_each_iteration
     states_final = implicit_func_fixed_point(
         states_guess,
         para,

@@ -31,9 +31,39 @@ from .utils import llambda as flambda
 # near_zero = 1e-20
 near_zero = 5e-5
 
+
+
 ############################################################################
 # Parameters and setup
 ############################################################################
+def compute_layer_depths(
+    veg_ht: Float_0D = 5.0,
+    meas_ht: Float_0D = 10.0,
+    n_can_layers: int = 5,
+    n_atmos_layers: int = 5,
+) -> Tuple[Float_1D, Float_1D, Float_1D, Float_1D]:
+    """Compute canopy and atmospheric layer depths.
+    
+    Returns:
+        zht1: Canopy layer heights
+        delz1: Canopy layer thicknesses
+        zht2: Atmospheric layer heights
+        delz2: Atmospheric layer thicknesses
+    """
+    dht_canopy = veg_ht / n_can_layers
+    ht_atmos = meas_ht - veg_ht
+    dht_atmos = ht_atmos / n_atmos_layers
+    
+    zht1 = jnp.arange(1, n_can_layers + 1) * dht_canopy
+    delz1 = jnp.ones(n_can_layers) * dht_canopy
+    
+    n_total_layers = n_can_layers + n_atmos_layers
+    zht2 = jnp.arange(1, n_total_layers - n_can_layers + 1) * dht_atmos + veg_ht
+    delz2 = jnp.ones(n_total_layers - n_can_layers) * dht_atmos
+    
+    return zht1, delz1, zht2, delz2
+
+
 def initialize_parameters(
     time_zone: int = -8,
     latitude: Float_0D = 38.0991538,
@@ -75,21 +105,13 @@ def initialize_parameters(
     get_para_bounds: bool = False,
     # ) -> Tuple[Setup, Para]:
 ):
-
-    dht_canopy = veg_ht / n_can_layers
-    ht_atmos = meas_ht - veg_ht
-    dht_atmos = ht_atmos / n_atmos_layers
-
     n_total_layers = n_can_layers + n_atmos_layers
 
     # Layer depths
-    zht1 = jnp.arange(1, n_can_layers + 1)
-    zht1 = zht1 * dht_canopy
-    delz1 = jnp.ones(n_can_layers) * dht_canopy
-    zht2 = jnp.arange(1, n_total_layers - n_can_layers + 1) * dht_atmos + veg_ht
-    delz2 = jnp.ones(n_total_layers - n_can_layers) * dht_atmos
+    zht1, delz1, zht2, delz2 = compute_layer_depths(
+        veg_ht, meas_ht, n_can_layers, n_atmos_layers
+    )
 
-    # Calculate meterological mean and standard deviation
     if (met is not None) and (obs is not None):
         var_mean, var_std, var_max, var_min = calculate_var_stats(met, obs)
     else:

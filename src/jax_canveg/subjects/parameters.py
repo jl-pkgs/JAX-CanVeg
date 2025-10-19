@@ -113,11 +113,12 @@ class VarStats(eqx.Module):
 
 class Para(eqx.Module):
     # Vertical profiles
-    zht1: Float_1D
-    zht2: Float_1D
-    delz1: Float_1D
-    delz2: Float_1D
-    soil_depth: Float_0D
+    zht1: Float_1D  # height of canopy layers
+    zht2: Float_1D  # height of atmospheric layers
+    delz1: Float_1D # depths of each canopy layers
+    delz2: Float_1D # depths of each atmospheric layers
+    soil_depth: Float_0D # total soil depth
+
     # Leaf
     leaf_clumping_factor: Float_0D
     # Par and Nir

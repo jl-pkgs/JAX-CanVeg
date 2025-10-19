@@ -9,8 +9,8 @@ Date: 2023.7.24.
 
 # import numpy as np
 import jax.numpy as jnp
-
 import equinox as eqx
+import pandas as pd
 
 # from typing import Optional, Tuple
 
@@ -22,12 +22,13 @@ from .utils import llambda, desdt, des2dt
 Mair = 28.97  # the molecular weight of air
 rugc = 8.314  # J mole-1 K-1
 
+# need to define a function df to Met
 
 class Met(eqx.Module):
     # ntime: Int_0D
     # Mair: Float_0D
     # rugc: Float_0D
-    zL: Float_1D
+    zL: Float_1D # 大气稳定度, 后续更新
     year: Float_1D
     day: Float_1D
     hhour: Float_1D
@@ -92,6 +93,45 @@ class Met(eqx.Module):
     def llambda(self):
         # latent heat of vaporization, J kg-1
         return jnp.vectorize(llambda)(self.T_air_K)
+    
+    def to_df(self):
+        """Convert Met instance to a DataFrame for easier inspection."""
+        data = {
+            "year": self.year,
+            "day": self.day,
+            "hhour": self.hhour,
+            "T_air": self.T_air,
+            "T_air_K": self.T_air_K,
+            "rglobal": self.rglobal,
+            "parin": self.parin,
+            "eair": self.eair,
+            "eair_Pa": self.eair_Pa,
+            "P_kPa": self.P_kPa,
+            "P_Pa": self.P_Pa,
+            "vpd": self.vpd,
+            "vpd_Pa": self.vpd_Pa,
+            "wind": self.wind,
+            "CO2": self.CO2,
+            "ustar": self.ustar,
+            "Tsoil": self.Tsoil,
+            "soilmoisture": self.soilmoisture,
+            "zcanopy": self.zcanopy,
+            "lai": self.lai,
+        }
+        return pd.DataFrame(data)
+
+    def to_csv(self, f):
+        df = self.to_df()
+        df.to_csv(f, index=False)
+
+    @classmethod
+    def from_df(cls, df: pd.DataFrame, zL_init=None) -> "Met":
+        """Construct Met instance from a DataFrame."""
+        cols = ["year", "day", "hhour", "T_air", "rglobal", "eair", "wind", 
+                "CO2", "P_kPa", "ustar", "Tsoil", "soilmoisture", "zcanopy", "lai"]
+        data = {col: jnp.asarray(df[col].values, dtype=jnp.float32) for col in cols}
+        data["zL"] = jnp.zeros(len(df), dtype=jnp.float32) # 后续update
+        return cls(**data)
 
 
 # def initialize_met(data: Float_2D, ntime: Int_0D, zL0: Float_1D) -> Met:
