@@ -24,26 +24,24 @@ def get_chunk(xx, i=0):
     xs_slice = [x[i] for x in xs_flat]
     return tree_unflatten(xs_tree, xs_slice)
 
-(
-    model,
-    filter_model_spec,
-    batched_met_train,
-    batched_y_train,
-    batched_met_test,
-    batched_y_test,
-    hyperparams,
-    para_min,
-    para_max,
-    output_funcs,
-    loss_func,
-    optim,
-    nsteps,
-    configs,
-) = load_forcing()
-
-
 # %%
-if __name__ == "__main__":
+def test_batches():
+    (
+        model,
+        filter_model_spec,
+        batched_met_train,
+        batched_y_train,
+        batched_met_test,
+        batched_y_test,
+        hyperparams,
+        para_min,
+        para_max,
+        output_funcs,
+        loss_func,
+        optim,
+        nsteps,
+        configs,
+    ) = load_forcing()
 
     # 加载数据
     _model = model.get_fixed_point_states
@@ -78,7 +76,6 @@ if __name__ == "__main__":
         # TODO: Need a better way to check nan occurring in the gradients
         grads = jtu.tree_map(lambda x: jnp.nanmean(x), results[1])
 
-
         opt_state = optim.init(eqx.filter(_model, eqx.is_array))
         updates, opt_state = optim.update(grads, opt_state)  # 计算更新
         model = eqx.apply_updates(_model, updates)
@@ -92,7 +89,7 @@ if __name__ == "__main__":
     # model_args = output_funcs
     # model2 = eqx.combine(diff_model, static_model)
     # pred_y = model2(met, *model_args)
-    # _loss = loss_func(y, pred_y) 
+    # _loss = loss_func(y, pred_y)
     # jax.debug.print("[one batch]: loss_value (direct compute): {x}", x=_loss)
 
     # # 都是同样的过程，为何调用 loss_func_optim 会失败？
@@ -102,3 +99,6 @@ if __name__ == "__main__":
     # print("Running all batches ...")
     # run_batches()
     # print("Model updated.")
+
+if __name__ == "__main__":
+    test_batches()

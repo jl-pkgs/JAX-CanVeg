@@ -16,6 +16,7 @@ jax.config.update("jax_traceback_filtering", "off")
 tune_jax_naninfs_for_debug(False)
 
 import logging
+
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
@@ -24,22 +25,6 @@ def get_chunk(xx, i=0):
     xs_slice = [x[i] for x in xs_flat]
     return tree_unflatten(xs_tree, xs_slice)
 
-(
-    model,
-    filter_model_spec,
-    batched_met_train,
-    batched_y_train,
-    batched_met_test,
-    batched_y_test,
-    hyperparams,
-    para_min,
-    para_max,
-    output_funcs,
-    loss_func,
-    optim,
-    nsteps,
-    configs,
-) = load_forcing()
 
 from jax_canveg.models.canveg_eqx import (
     canveg_initialize_states,
@@ -47,8 +32,25 @@ from jax_canveg.models.canveg_eqx import (
     implicit_func_fixed_point,
 )
 
+
 # %%
-if __name__ == "__main__":
+def test_modules():
+    (
+        model,
+        filter_model_spec,
+        batched_met_train,
+        batched_y_train,
+        batched_met_test,
+        batched_y_test,
+        hyperparams,
+        para_min,
+        para_max,
+        output_funcs,
+        loss_func,
+        optim,
+        nsteps,
+        configs,
+    ) = load_forcing()
 
     # 加载数据
     _model = model.get_fixed_point_states

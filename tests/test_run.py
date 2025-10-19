@@ -6,9 +6,6 @@ import jax
 from jax_canveg.shared_utilities import tune_jax_naninfs_for_debug
 from jax._src.tree_util import tree_flatten, tree_unflatten
 import equinox as eqx
-import jax.numpy as jnp
-import jax.tree_util as jtu
-from jax_canveg.shared_utilities.optim.optim import loss_func_optim
 
 
 jax.config.update("jax_enable_x64", True)

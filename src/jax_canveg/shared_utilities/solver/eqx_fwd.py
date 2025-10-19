@@ -1,4 +1,5 @@
 import jax
+import jax.numpy as jnp
 from jax import jvp
 
 import equinox as eqx
@@ -27,7 +28,7 @@ def fixed_point_forward(
 
 
 # @fixed_point_forward.def_jvp
-@fixed_point_forward.defjvp
+@fixed_point_forward.def_jvp
 def fixed_point_forward_jvp(
     # iter_func, update_substates_func, get_substate_func, niter, primals, tangents
     primals,
@@ -41,13 +42,13 @@ def fixed_point_forward_jvp(
     # states_guess, para, niter, args = primals[0], primals[1], primals[2], primals[3:]
     # states_guess, para, args = primals[0], primals[1], primals[2:]
     states_guess, para, args = primals[0], primals[1], primals[2]
-    v = tangents[1]  # 这个变量为何理解, tan_para
-
-    # jax.debug.print("debug para: {x}", x=para)
-    # jax.debug.print("debug tan_para: {x}", x=tan_para)
 
     states_final = fixed_point(iter_func, states_guess, para, niter, *args)
     substates_final = get_substates_func(states_final)
+
+    v = recover_tangent(para, tangents[1])  # 这个变量为何理解, tan_para
+    # jax.debug.print("debug para: {x}", x=para)
+    # jax.debug.print("debug tan_para: {x}", x=tan_para)
 
     def each_iteration_para(para):
         states2 = iter_func(states_final, para, *args)
@@ -86,6 +87,16 @@ def fixed_point_forward_jvp(
     ).value
     # tangent_out = lx.linear_solve(A, u, solver=lx.SVD()).value
     return substates_final, tangent_out
+
+
+def recover_tangent(para, t_para):
+    # 将 tangent 中的 None 转换为零数组, v 和 para 的树结构就匹配了
+    return jax.tree.map(
+        lambda p, t: jnp.zeros_like(p) if t is None else t,
+        para,
+        t_para,
+        is_leaf=lambda x: x is None,
+    )
 
 
 # # @partial(jax.custom_jvp, nondiff_argnums=(0, 1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13))
