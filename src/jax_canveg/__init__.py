@@ -2,6 +2,11 @@ from .train_model import train_model  # noqa: F401
 from .train_model import load_model  # noqa: F401
 from .forcing import load_forcing  # noqa: F401
 
+
+def hello():
+    print("Hello, JAX-CanVeg 1")
+
+
 # import logging
 # logging.basicConfig(level=logging.INFO,
 # format='%(asctime)s - %(levelname)s - %(message)s')

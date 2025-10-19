@@ -1,17 +1,13 @@
 # %%
-from jax_canveg import load_forcing
-
-import jax
-from jax_canveg.shared_utilities import tune_jax_naninfs_for_debug
-from jax._src.tree_util import tree_flatten, tree_unflatten
 import equinox as eqx
-import jax.numpy as jnp
-import jax.tree_util as jtu
+import jax
+from jax._src.tree_util import tree_flatten, tree_unflatten
+from jax_canveg import load_forcing
+from jax_canveg.shared_utilities import tune_jax_naninfs_for_debug
 from jax_canveg.subjects.initialization_update import (
     initialize_model_states,
     initialize_profile,
 )
-from jax_canveg.shared_utilities.optim.optim import loss_func_optim
 from jax_canveg.shared_utilities.utils import dot
 from jax_canveg.subjects import Met
 
@@ -35,19 +31,16 @@ def get_chunk(xx, i=0):
     xs_slice = [x[i] for x in xs_flat]
     return tree_unflatten(xs_tree, xs_slice)
 
-
 from jax_canveg.models.canveg_eqx import (
-    canveg_initialize_states,
-    canveg_each_iteration,
-    implicit_func_fixed_point,
+    canveg_initialize_states
 )
 
 
 # %%
 def test_modules():
-    input = load_forcing()
+    f = "tests/PB-ML-0.0/configs.json"
+    input = load_forcing(f)
     model = input["model"]
-    output_funcs = input["output_funcs"]
     batched_met_train, batched_y_train = input["forcing"]["train"]
 
     ## 1. 单个batch
@@ -56,11 +49,8 @@ def test_modules():
     print(met, y)
     print("Running ...")
 
-    update_substates_func = output_funcs[0]
-    get_substates_func = output_funcs[1]
-
     self = model
-    para, dij = self.para, self.dij
+    para = self.para
     niter = self.niter
 
     # Location parameters
@@ -87,7 +77,6 @@ def test_modules():
     )
 
     ## =========================================================================
-
     jtot = self.n_can_layers
     ntime = met.zL.size
 
@@ -102,7 +91,7 @@ def test_modules():
     n_soil_layers = self.n_soil_layers
     leafangle = self.leafangle
 
-    (soil, quantum, nir, ir, qin, rnet, sun, shade, veg, lai, can) = (
+    (soil, par, nir, ir, qin, rnet, sun, shade, veg, lai, can) = (
         initialize_model_states(
             met, para, ntime, jtot, dt_soil, soil_mtime, n_soil_layers
         )
@@ -116,9 +105,7 @@ def test_modules():
         sun_ang.sin_beta, met.rglobal, met.parin, met.P_kPa
     )
 
-    quantum = eqx.tree_at(
-        lambda t: (t.inbeam, t.indiffuse), quantum, (par_beam, par_diffuse)
-    )
+    par = eqx.tree_at(lambda t: (t.inbeam, t.indiffuse), par, (par_beam, par_diffuse))
     nir = eqx.tree_at(lambda t: (t.inbeam, t.indiffuse), nir, (nir_beam, nir_diffuse))
 
     # ---------------------------------------------------------------------------- #
@@ -130,59 +117,23 @@ def test_modules():
     ir = eqx.tree_at(lambda t: (t.ir_in, t.ir_dn, t.ir_up), ir, (ir_in, ir_dn, ir_up))
 
     # PAR
-    quantum = rad_tran_canopy(
-        sun_ang,
-        leaf_ang,
-        quantum,
-        para,
-        lai,
+    par = rad_tran_canopy(
+        sun_ang, leaf_ang, par, para, lai,
         para.par_reflect,
         para.par_trans,
         para.par_soil_refl,
-        niter=niter,
+        niter=niter
     )
     # NIR
     nir = rad_tran_canopy(
-        sun_ang,
-        leaf_ang,
-        nir,
-        para,
-        lai,
+        sun_ang, leaf_ang, nir, para, lai,
         para.nir_reflect,
         para.nir_trans,
         para.nir_soil_refl,
-        niter=niter,
+        niter=niter
     )
 
-    states_initial = [met, prof, quantum, nir, ir, qin, sun, shade, soil, veg, can]
-
-    ## =========================================================================
-    states_guess = states_initial
-
-    args = [
-        dij,
-        sun_ang,
-        leaf_ang,
-        lai,
-        self.n_can_layers,
-        self.stomata,
-        self.soil_mtime,
-        leafrh_func,
-        soilresp_func,
-    ]
-    ## 后续测试canveg_each_iteration
-    states_final = implicit_func_fixed_point(
-        states_guess,
-        para,
-        args,
-        iter_func=canveg_each_iteration,
-        update_substates_func=update_substates_func,
-        get_substates_func=get_substates_func,
-        niter=niter,
-    )
-
-    print(states_final)
-    states_final, [rnet, sun_ang, leaf_ang, lai]
+    states_initial = [met, prof, par, nir, ir, qin, sun, shade, soil, veg, can]
 
 
 if __name__ == "__main__":
