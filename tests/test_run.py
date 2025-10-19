@@ -1,5 +1,4 @@
 # %%
-# from jax_canveg.models import CanvegIFT
 from jax_canveg import load_forcing
 
 import jax
@@ -23,28 +22,17 @@ def get_chunk(xx, i=0):
 
 
 def test_modelrun():
-    (
-        model,
-        filter_model_spec,
-        batched_met_train,
-        batched_y_train,
-        batched_met_test,
-        batched_y_test,
-        hyperparams,
-        para_min,
-        para_max,
-        output_funcs,
-        loss_func,
-        optim,
-        nsteps,
-        configs,
-    ) = load_forcing()
+    input = load_forcing()
+    model = input["model"]
+    filter_model_spec = input["filter_model_spec"]
+    output_funcs = input["output_funcs"]
+    loss_func = input["loss_func"]
+
+    batched_met_train, batched_y_train = input["forcing"]["train"]
 
     # 加载数据
     _model = model.get_fixed_point_states
     _filter_model_spec = filter_model_spec.get_fixed_point_states
-    # batched_y = batched_y_train
-    # batched_met = batched_met_train
     diff_model, static_model = eqx.partition(_model, _filter_model_spec)
 
     ## 1. 单个batch
@@ -63,11 +51,3 @@ def test_modelrun():
 # %%
 if __name__ == "__main__":
     test_modelrun()
-
-    # # 都是同样的过程，为何调用 loss_func_optim 会失败？
-    # run_batch(diff_model, static_model, y, met)
-
-    ## 2. 数据batch
-    # print("Running all batches ...")
-    # run_batches()
-    # print("Model updated.")

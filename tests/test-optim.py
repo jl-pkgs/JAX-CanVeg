@@ -26,6 +26,7 @@ path.abspath(path.curdir)
 
 # %%
 from jax_canveg.train_model import parse_config
+
 (
     model,
     filter_model_spec,
@@ -83,5 +84,5 @@ states_final, [rnet, sun_ang, leaf_ang, lai] = model(x)
 )
 
 # %%
-pred_y = model(x)
-loss_func(y, pred_y)
+# pred_y = model(x)
+# loss_func(y, pred_y)

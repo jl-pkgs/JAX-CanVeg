@@ -26,23 +26,15 @@ def get_chunk(xx, i=0):
 
 # %%
 def test_batches():
-    (
-        model,
-        filter_model_spec,
-        batched_met_train,
-        batched_y_train,
-        batched_met_test,
-        batched_y_test,
-        hyperparams,
-        para_min,
-        para_max,
-        output_funcs,
-        loss_func,
-        optim,
-        nsteps,
-        configs,
-    ) = load_forcing()
+    input = load_forcing()
+    model = input["model"]
+    filter_model_spec = input["filter_model_spec"]
+    output_funcs = input["output_funcs"]
+    loss_func = input["loss_func"]
+    optim = input["optim"]
 
+    batched_met_train, batched_y_train = input["forcing"]["train"]
+    
     # 加载数据
     _model = model.get_fixed_point_states
     _filter_model_spec = filter_model_spec.get_fixed_point_states

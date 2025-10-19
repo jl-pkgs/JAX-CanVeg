@@ -25,29 +25,17 @@ def get_chunk(xx, i=0):
 
 def test_model_hybird():
     f_config = path.abspath("tests/Hybrid-1L-0.0/configs.json")
+    input = load_forcing(f_config)
 
-    (
-        model,
-        filter_model_spec,
-        batched_met_train,
-        batched_y_train,
-        batched_met_test,
-        batched_y_test,
-        hyperparams,
-        para_min,
-        para_max,
-        output_funcs,
-        loss_func,
-        optim,
-        nsteps,
-        configs,
-    ) = load_forcing(f_config)
+    model = input["model"]
+    filter_model_spec = input["filter_model_spec"]
+    output_funcs = input["output_funcs"]
+    loss_func = input["loss_func"]
+    batched_met_train, batched_y_train = input["forcing"]["train"]
 
     # 加载数据
     _model = model.get_fixed_point_states
     _filter_model_spec = filter_model_spec.get_fixed_point_states
-    # batched_y = batched_y_train
-    # batched_met = batched_met_train
     diff_model, static_model = eqx.partition(_model, _filter_model_spec)
 
     ## 1. 单个batch
@@ -66,11 +54,3 @@ def test_model_hybird():
 # %%
 if __name__ == "__main__":
     test_model_hybird()
-
-    # # 都是同样的过程，为何调用 loss_func_optim 会失败？
-    # run_batch(diff_model, static_model, y, met)
-
-    ## 2. 数据batch
-    # print("Running all batches ...")
-    # run_batches()
-    # print("Model updated.")
