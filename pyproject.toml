@@ -1,0 +1,29 @@
+[project]
+name = "jax_canveg"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "equinox>=0.13.2",
+    "hydroeval>=0.1.0",
+    "jax>=0.8.0",
+    "lineax>=0.0.8",
+    "matplotlib>=3.10.7",
+    "optax>=0.2.6",
+    "pandas>=2.3.3",
+    "pytest>=8.4.2",
+    "pytest-cov>=4.0.0",
+    "scikit-learn>=1.7.2",
+    "typing>=3.10.0.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest-cov"]
+
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = { find = { where = ["src"], include = ["jax_canveg"] } }

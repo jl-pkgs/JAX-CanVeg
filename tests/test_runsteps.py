@@ -1,6 +1,6 @@
 # %%
 # from jax_canveg.models import CanvegIFT
-from tests.forcing import load_forcing
+from jax_canveg import load_forcing
 
 import jax
 from jax_canveg.shared_utilities import tune_jax_naninfs_for_debug

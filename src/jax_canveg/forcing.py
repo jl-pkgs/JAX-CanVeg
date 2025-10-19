@@ -1,10 +1,6 @@
-import logging
 import os
 from os import path
-from pathlib import Path
-from jax_canveg.train_model import parse_config
-
-
+from .train_model import parse_config
 
 
 default_config = path.abspath("tests/PB-1L-0.0/configs.json")

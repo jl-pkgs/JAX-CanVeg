@@ -6,3 +6,6 @@ backup
 tests/*/*.txt
 tests/*/*.csv
 tests/*/*.eqx
+
+uv.lock
+jax_canveg.egg-info

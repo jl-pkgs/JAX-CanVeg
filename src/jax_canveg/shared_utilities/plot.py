@@ -908,21 +908,21 @@ def plot_flux_modis_obs(obs, met, site, axes=None):
     ]
 
     var_units = [
-        "$^\circ$C",
+        r"$^\circ$C",
         "W m$^{-2}$",
         "kPa",
         "m s$^{-1}$",
         "ppm",
         "kPa",
         "m s$^{-1}$", 
-        "$^\circ$C",
+        r"$^\circ$C",
         "m$^{3}$ m$^{-3}$",
         "m$^{2}$ m$^{-2}$",
         "W m$^{-2}$",
         "W m$^{-2}$",
         "W m$^{-2}$",
         "W m$^{-2}$",
-        "$\mu$mol m$^{-2}$ s$^{-1}$"
+        r"$\mu$mol m$^{-2}$ s$^{-1}$"
     ]
 
     if axes is None:

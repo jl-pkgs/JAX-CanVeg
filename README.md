@@ -1,20 +1,26 @@
 # JAX-CanVeg: A Differentiable Land Surface Model
 
+[![CI](https://github.com/jl-pkgs/JAX-CanVeg/actions/workflows/CI.yml/badge.svg)](https://github.com/jl-pkgs/JAX-CanVeg/actions/workflows/CI.yml)
+[![codecov](https://codecov.io/gh/jl-pkgs/JAX-CanVeg/graph/badge.svg)](https://codecov.io/gh/jl-pkgs/JAX-CanVeg/tree/main)
+
+
 <p align="center">
 <img src="./doc/JAX-CanVeg-v2.png" alt="fishy" class="center" width="400px">
 </p>
 
 ## Table of Contents
-- [Overview](#overview)
-- [Repo structure](#repo-structure)
-- [Installation](#installation)
-- [Getting Started](#getting-started)
-- [Computational Time Benchmark](#computational-time-benchmark)
-- [Example: A Hybrid Ball Berry Model](#example-a-hybrid-ball-berry-model)
-- [License](#license)
-- [Acknowledgments](#acknowledgements)
-- [Citation](#citation)
-- [Contacts](#contacts)
+- [JAX-CanVeg: A Differentiable Land Surface Model](#jax-canveg-a-differentiable-land-surface-model)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Repo Structure](#repo-structure)
+  - [Installation](#installation)
+  - [Getting Started](#getting-started)
+  - [Computational Time Benchmark](#computational-time-benchmark)
+  - [Example: A Hybrid Ball-Berry Model](#example-a-hybrid-ball-berry-model)
+  - [License](#license)
+  - [Acknowledgements](#acknowledgements)
+  - [Citation](#citation)
+  - [Contacts](#contacts)
 
 ## Overview
 Land surface process describes the water, energy, and carbon cycles exchanged among the atmosphere, canopy, and soil. Its complex interacting nature makes it challenging to model due to the associated unknown biophysical and ecophysiological parameters and less-mechanistically represented subprocesses. Differentiable modeling provides a new opportunity to explore the parameter space and capture these complex interactions by seamlessly coupling process-based and deep learning models. Here, we developed a differentiable land surface model by reimplementing an existing simulator, [CanVeg](https://github.com/baldocchi/CanVeg), in [JAX](https://github.com/jax-ml/jax) -- a Google-developed Python package for high-performance machine learning research using automatic differentiation. Anchored in differentiable modeling, we expect that JAX-CanVeg provides a new avenue for modeling land-atmospheric interactions by leveraging the benefits of both data-driven learning and process-based modeling.
