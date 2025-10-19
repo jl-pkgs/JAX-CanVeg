@@ -1,25 +1,14 @@
 # %%
 import os
 from os import path
-import json
-import logging
-
-import time
-from datetime import datetime
 
 import jax
-from pathlib import Path
-
-import jax_canveg
-from jax_canveg import train_model
-from jax_canveg.models import CanvegIFT
 from jax_canveg.shared_utilities import tune_jax_naninfs_for_debug
+from jax_canveg.shared_utilities.optim import perform_optimization_batch
 
 jax.config.update("jax_enable_x64", True)
 jax.config.update("jax_traceback_filtering", "off")
 tune_jax_naninfs_for_debug(False)
-
-from jax_canveg.shared_utilities.optim import perform_optimization_batch
 
 import logging
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
@@ -33,7 +22,6 @@ f_configs = os.path.basename(configs)
 indir
 os.chdir(indir)
 path.abspath(path.curdir)
-
 
 
 # %%
@@ -93,8 +81,6 @@ states_final, [rnet, sun_ang, leaf_ang, lai] = model(x)
     para_max,
     *output_funcs,
 )
-
-# ?loss_func
 
 # %%
 pred_y = model(x)

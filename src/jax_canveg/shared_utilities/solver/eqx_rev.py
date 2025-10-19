@@ -1,10 +1,9 @@
 # 逆向速度慢2倍
 import jax
-from jax import grad, vjp, jacrev, jvp, jacfwd
+from jax import vjp, grad, jacrev, jvp, jacfwd
 import jax.numpy as jnp
 
 import equinox as eqx
-from typing import List
 import lineax as lx
 from .fixed_point import fixed_point
 
@@ -99,7 +98,6 @@ def fixed_point_reverse(
         return (states_guess_bar, para_bar, args_bar)
 
     return _core_vjp((states_guess, para, args))
-
 
 
 def zeros_like_pytree(pytree):
