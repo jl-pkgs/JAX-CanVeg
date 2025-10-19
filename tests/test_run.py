@@ -24,33 +24,30 @@ def get_chunk(xx, i=0):
     xs_slice = [x[i] for x in xs_flat]
     return tree_unflatten(xs_tree, xs_slice)
 
-(
-    model,
-    filter_model_spec,
-    batched_met_train,
-    batched_y_train,
-    batched_met_test,
-    batched_y_test,
-    hyperparams,
-    para_min,
-    para_max,
-    output_funcs,
-    loss_func,
-    optim,
-    nsteps,
-    configs,
-) = load_forcing()
 
-
-# %%
-if __name__ == "__main__":
+def test_modelrun():
+    (
+        model,
+        filter_model_spec,
+        batched_met_train,
+        batched_y_train,
+        batched_met_test,
+        batched_y_test,
+        hyperparams,
+        para_min,
+        para_max,
+        output_funcs,
+        loss_func,
+        optim,
+        nsteps,
+        configs,
+    ) = load_forcing()
 
     # 加载数据
     _model = model.get_fixed_point_states
     _filter_model_spec = filter_model_spec.get_fixed_point_states
-    batched_y = batched_y_train
-    batched_met = batched_met_train
-
+    # batched_y = batched_y_train
+    # batched_met = batched_met_train
     diff_model, static_model = eqx.partition(_model, _filter_model_spec)
 
     ## 1. 单个batch
@@ -65,7 +62,10 @@ if __name__ == "__main__":
     pred_y = model2(met, *model_args)
     _loss = loss_func(y, pred_y) 
     jax.debug.print("[one batch]: loss_value (direct compute): {x}", x=_loss)
-    
+
+# %%
+if __name__ == "__main__":
+    test_modelrun()
 
     # # 都是同样的过程，为何调用 loss_func_optim 会失败？
     # run_batch(diff_model, static_model, y, met)
