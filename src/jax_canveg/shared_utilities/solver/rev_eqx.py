@@ -57,6 +57,12 @@ def fixed_point_reverse(
         substates_final = get_substates_func(states_final)
         v_bar = grad_out
 
+        def each_iteration_para(para_):
+            """F(para) = g(f(states_final, para))"""
+            states2 = iter_func(states_final, para_, *args_saved)
+            substates2 = get_substates_func(states2)
+            return substates2
+
         def each_iteration_state(substates):
             """F(substates) = g(f(update(states_final, substates)))"""
             states1 = update_substates_func(states_final, substates)
@@ -79,33 +85,25 @@ def fixed_point_reverse(
             A_T, v_bar, solver=lx.AutoLinearSolver(well_posed=False)
         ).value
 
-        # Compute gradient wrt para
-        para_bar = None
+        # Compute gradient wrt para (only if para is being differentiated)
         if para_perturbed:
-
-            def each_iteration_para(para_):
-                """F(para) = g(f(states_final, para))"""
-                states2 = iter_func(states_final, para_, *args_saved)
-                substates2 = get_substates_func(states2)
-                return substates2
-
             _, vjp_para = vjp(each_iteration_para, para_saved)
             (para_bar,) = vjp_para(u_bar)
-
-        # Gradient wrt states_guess: create zero-structure matching states_guess
-        # (converged fixed point is independent of initial guess)
-        if states_guess_perturbed:
-            states_guess_bar = jax.tree_util.tree_map(lambda _: None, states_guess)
         else:
-            states_guess_bar = None
+            para_bar = zeros_like_pytree(para)
 
-        # Gradient wrt args: always None (non-differentiable static parameters)
-        # Must return structure matching vjp_arg
-        if args_perturbed:
-            args_bar = jax.tree_util.tree_map(lambda _: None, args_in)
-        else:
-            args_bar = None
+        # state和 args 不是影响loss的主要原因
+        states_guess_bar = zeros_like_pytree(states_guess)
+        args_bar = zeros_like_pytree(args_in)
 
         return (states_guess_bar, para_bar, args_bar)
 
     return _core_vjp((states_guess, para, args))
+
+
+
+def zeros_like_pytree(pytree):
+    """Create a pytree of zeros with the same structure and shapes as the input pytree."""
+    return jax.tree_util.tree_map(
+        lambda x: jnp.zeros_like(x) if eqx.is_inexact_array(x) else None, pytree
+    )
